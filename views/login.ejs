@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Sign In Into Your Account</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+          "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f6f6f6;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
+        color: rgb(132, 0, 255);
+      }
+
+      .container {
+        padding: 5rem;
+        margin: auto;
+        width: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        background-color: #fff;
+        border-radius: 1rem;
+      }
+      .card-title {
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+      .card-title p {
+        font-size: 0.8em;
+        font-weight: normal;
+      }
+      form {
+        width: 70%;
+      }
+      .form-group,
+      .form-group input {
+        width: 100%;
+      }
+      .form-group {
+        margin: 10px 0;
+        margin-bottom: 20px;
+      }
+      .form-group input {
+        transition: 0.1s;
+        border: none;
+        border-bottom: 1px solid gray;
+        outline: none;
+        padding: 0.8rem 0.5rem;
+      }
+      .form-group input:focus {
+        border: 1px solid gray;
+        border-radius: 5px;
+      }
+
+      .showpw-container {
+        display: flex;
+        gap: 5px;
+        margin-top: -5px;
+        margin-bottom: 25px;
+        margin-left: 5px;
+        justify-content: start;
+      }
+      .showpw-container label {
+        font-size: 12px;
+        color: gray;
+        user-select: none;
+      }
+
+      button {
+        outline: none;
+        border: none;
+        background-color: rgb(132, 0, 255);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.1s;
+      }
+      button:hover {
+        background-color: rgb(51, 0, 255);
+      }
+
+      .form-button {
+        display: flex;
+        justify-content: space-between;
+      }
+      .form-button a {
+        font-size: 0.75em;
+        color: rgba(0, 0, 0, 0.5);
+      }
+
+      .signup {
+        margin: 20px 0;
+        font-size: small;
+        color: rgba(0, 0, 0, 0.5);
+      }
+
+      .or-divider {
+        display: flex;
+        width: 100%;
+        align-items: center;
+      }
+      .or-divider hr {
+        width: 100%;
+        margin: 0 10px;
+      }
+      .other-container {
+        margin: 10px 0;
+      }
+
+      .other-loading-container {
+        border: 1px solid black;
+        width: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px 15px;
+        margin: 10px 20px;
+        border-radius: 5px;
+        display: none;
+      }
+
+      .error-badge {
+        border: 2px solid rgba(255, 0, 0, 0.254);
+        background-color: rgba(255, 0, 0, 0.113);
+        color: gray;
+        display: none;
+        padding: 5px 15px;
+        border-radius: 5px;
+      }
+
+      @media only screen and (max-width: 768px) {
+        /* For mobile phones: */
+        body {
+          background-color: white;
+        }
+        .container {
+          padding: 0 20px;
+        }
+        .container,
+        form {
+          width: 100%;
+        }
+      }
+    </style>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="card-title">
+        Sign In
+        <p>Into Your Account</p>
+      </h1>
+      <span class="error-badge"></span>
+      <form action="#" method="post">
+        <div class="form-group email">
+          <input
+            type="email"
+            name="email"
+            class="form-input"
+            placeholder="Email"
+          />
+        </div>
+        <div class="form-group password">
+          <input
+            type="password"
+            name="password"
+            class="form-input"
+            placeholder="Password"
+          />
+        </div>
+        <div class="showpw-container">
+          <input type="checkbox" id="showpw" onchange="onShowPassword(this)" />
+          <label for="showpw">Show Password</label>
+        </div>
+
+        <div class="form-button">
+          <button type="submit">Sign In</button>
+          <a href="#">Forgot Password?</a>
+        </div>
+      </form>
+      <span class="signup">Don't Have an Account? <a href="#">Sign Up</a></span>
+      <div class="or-divider">
+        <hr />
+        <span>OR</span>
+        <hr />
+      </div>
+      <div class="other-loading-container">
+        <span>Loading...</span>
+      </div>
+      <div class="other-container">
+        <div
+          id="g_id_onload"
+          data-client_id="<%= google_client_id %>"
+          data-callback="googleHandleCallback"
+        ></div>
+        <div class="g_id_signin" data-type="standard"></div>
+      </div>
+    </div>
+    <script>
+      const redirectUrl = new URL(
+        new URLSearchParams(window.location.search).get("redirect")
+      );
+      document.cookie = "redirect_url=" + redirectUrl + ";path=/";
+
+      const otherContainer = document.querySelector(".other-container");
+      const otherLoadingContainer = document.querySelector(
+        ".other-loading-container"
+      );
+      const passwordInput = document.querySelector(
+        ".form-group.password input"
+      );
+      const onShowPassword = (props) => {
+        if (props.checked) {
+          passwordInput.type = "text";
+        } else {
+          passwordInput.type = "password";
+        }
+      };
+      window.googleHandleCallback = (props) =>
+        sendCredentials(props.credential);
+
+      const sendCredentials = async (creds) => {
+        hideError();
+        otherContainer.style.display = "none";
+        otherLoadingContainer.style.display = "flex";
+        const data = await fetch("/auth/jwt", {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ type: "google", credential: creds }),
+          method: "POST",
+        });
+        if (data.status == 200) {
+          const redirect = new URL(redirectUrl);
+          redirect.searchParams.set("token", "aaa");
+          window.location.replace(redirect);
+        } else {
+          showError((await data.json()).message ?? "Upsss...");
+        }
+        otherContainer.style.display = "block";
+        otherLoadingContainer.style.display = "none";
+      };
+
+      const errorBadge = document.querySelector(".error-badge");
+      const showError = (error) => {
+        errorBadge.textContent = error;
+        errorBadge.style.display = "inline";
+      };
+      const hideError = () => (errorBadge.style.display = "hidden");
+    </script>
+  </body>
+</html>
